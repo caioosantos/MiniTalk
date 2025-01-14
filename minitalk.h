@@ -6,7 +6,7 @@
 /*   By: cbrito-s <cbrito-s>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 16:05:04 by cbrito-s          #+#    #+#             */
-/*   Updated: 2025/01/14 14:40:41 by cbrito-s         ###   ########.fr       */
+/*   Updated: 2025/01/14 17:41:40 by cbrito-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 
 # include "libft/libft.h"
 # include "printf/ft_printf.h"
+# include <signal.h>
 # include <stdlib.h>
 # include <unistd.h>
-# include <signal.h>
+
+void	signal_handler(int signum, siginfo_t *info, void *context);
 
 #endif
