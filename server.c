@@ -6,27 +6,28 @@
 /*   By: cbrito-s <cbrito-s>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 16:04:56 by cbrito-s          #+#    #+#             */
-/*   Updated: 2025/01/14 17:42:09 by cbrito-s         ###   ########.fr       */
+/*   Updated: 2025/01/20 15:55:18 by cbrito-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
-#include <signal.h>
 
 void	signal_handler(int signum, siginfo_t *info, void *context)
 {
-	static int	bit;
-	static char c_buffer;
+	static int	bit = 0;
+	static char c_buffer = 0;
 
-	bit = 0;
-	c_buffer = 0;
 	(void)context;
-	if (signum ==  SIGUSR1)
-		c_buffer |= (1 << (7 - bit));
+	if (signum == SIGUSR1)
+		c_buffer |= (0 << bit);
+	else if (signum == SIGUSR2)
+		c_buffer |= (1 << bit);
 	bit++;
 	if (bit == 8)
 	{
 		ft_printf("%c", c_buffer);
+		if (c_buffer == '\0')
+			ft_printf("\n");
 		bit = 0;
 		c_buffer = 0;
 	}

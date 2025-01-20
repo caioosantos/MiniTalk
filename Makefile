@@ -1,48 +1,51 @@
-# 📝 Variáveis
+# Variáveis
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-
-SERVER = server
-CLIENT = client
-
+SERVER_SRC = server.c
+CLIENT_SRC = client.c
+SERVER_OBJ = $(SERVER_SRC:.c=.o)
+CLIENT_OBJ = $(CLIENT_SRC:.c=.o)
+SERVER_BIN = server
+CLIENT_BIN = client
+LIBFT_DIR = libft
 PRINTF_DIR = printf
-PRINTF_LIB = $(PRINTF_DIR)/libftprintf.a
+LIBFT = $(LIBFT_DIR)/libft.a
+PRINTF = $(PRINTF_DIR)/libftprintf.a
 
-SRCS_SERVER = server.c
-SRCS_CLIENT = client.c
+# Regras principais
+all: $(LIBFT) $(PRINTF) $(SERVER_BIN) $(CLIENT_BIN)
 
-# 🛠️ Regras Principais
-all:
-	@$(MAKE) -C $(PRINTF_DIR) all
-	@$(CC) $(CFLAGS) $(SRCS_SERVER) $(PRINTF_LIB) -o $(SERVER)
-	@$(CC) $(CFLAGS) $(SRCS_CLIENT) $(PRINTF_LIB) -o $(CLIENT)
-	@echo "✅ Server e Client compilados com sucesso!"
+# Compilação do servidor
+$(SERVER_BIN): $(SERVER_OBJ) $(LIBFT) $(PRINTF)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# 🧹 Limpeza
+# Compilação do cliente
+$(CLIENT_BIN): $(CLIENT_OBJ) $(LIBFT) $(PRINTF)
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Compilação dos objetos
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Compilação da libft
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_DIR)
+
+# Compilação da ft_printf
+$(PRINTF):
+	$(MAKE) -C $(PRINTF_DIR)
+
+# Limpeza
 clean:
-	@$(MAKE) -C $(PRINTF_DIR) clean
-	@rm -f $(SERVER)
-	@rm -f $(CLIENT)
-	@echo "🧹 Objetos e binários limpos!"
+	rm -f $(SERVER_OBJ) $(CLIENT_OBJ)
+	$(MAKE) clean -C $(LIBFT_DIR)
+	$(MAKE) clean -C $(PRINTF_DIR)
 
 fclean: clean
-	@$(MAKE) -C $(PRINTF_DIR) fclean
-	@echo "🗑️ Biblioteca Printf limpa!"
+	rm -f $(SERVER_BIN) $(CLIENT_BIN)
+	$(MAKE) fclean -C $(LIBFT_DIR)
+	$(MAKE) fclean -C $(PRINTF_DIR)
 
-# 🔄 Recompilação Total
 re: fclean all
 
-# 🎁 Regra de Bônus (caso existam bônus em printf)
-bonus: fclean
-	@$(MAKE) -C $(PRINTF_DIR) all
-	@echo "🎁 Bônus recompilado com sucesso!"
-
-# 🚀 Execução
-run_server: $(SERVER)
-	@./$(SERVER)
-
-run_client: $(CLIENT)
-	@echo "🔄 Execute './client <PID> <mensagem>' para enviar uma mensagem ao server"
-
-# 📌 Garante que comandos específicos não sejam confundidos com arquivos
-.PHONY: all clean fclean re bonus run_server run_client
+.PHONY: all clean fclean re

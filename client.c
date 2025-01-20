@@ -6,13 +6,13 @@
 /*   By: cbrito-s <cbrito-s>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/07 16:04:47 by cbrito-s          #+#    #+#             */
-/*   Updated: 2025/01/14 15:33:08 by cbrito-s         ###   ########.fr       */
+/*   Updated: 2025/01/20 15:55:17 by cbrito-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-server_confirm = 0;
+int	server_confirm = 0;
 
 static void	ft_handler(int signum)
 {
@@ -20,61 +20,53 @@ static void	ft_handler(int signum)
 		server_confirm = 1;
 }
 
-static void	ft_send_message_bit(int pid, char *str)
+static void	ft_send_message(int pid, char c)
 {
-	while (*str != '\0')
+	int	bit;
+
+	bit = 0;
+	while (bit < 8)
 	{
-		if (*str == 1)
-			kill(pid, SIGUSR1);
-		else
+		if ((c >> bit) & 1)
 			kill(pid, SIGUSR2);
-		str++;
-		while(!server_confirm)
+		else
+			kill(pid, SIGUSR1);
+		bit++;
+		while (!server_confirm)
 			;
 		server_confirm = 0;
 	}
 }
 
-static char	*ft_bit(char *str, int len)
+static void	ft_send_end(int pid)
 {
-	int		i;
-	int		j;
-	int		c;
-	int		bit;
-	char	*ret;
+	int	bit;
 
-	i = 0;
-	j = 0;
-	ret = ft_calloc(len * 8 + 1, sizeof(char));
-	if (!ret)
-		return (NULL);
-	while (i < len)
+	bit = 0;
+	while (bit < 8)
 	{
-		c = str[i++];
-		bit = 8;
-		while (bit > 0)
-		{
-			if (c & (1 << (bit-- - 1)))
-				ret[j] = '1';
-			else
-				ret[j] = '0';
-			j++;
-		}
+		kill(pid, SIGUSR1);
+		bit++;
+		while (!server_confirm)
+			;
+		server_confirm = 0;
 	}
-	return (ret);
 }
 
 int	main(int ac, char **av)
 {
-	int		pid;
-	char	*bit;
+	int	pid;
 
 	if (ac == 3)
 	{
 		pid = ft_atoi(av[1]);
 		signal(SIGUSR1, ft_handler);
-		bit = ft_bit(av[2], ft_strlen(av[2]));
-		ft_send_message_bit(pid, bit);
+		while (*av[2])
+		{
+			ft_send_message(pid, *av[2]);
+			av[2]++;
+		}
+		ft_send_end(pid);
 	}
 	else
 		ft_printf("Usage: ./client [PID] [message]\n");
